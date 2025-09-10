@@ -1,3 +1,5 @@
+from catalog import catalog
+
 def print_header(text):
     print("--------------------")
     print(text)
@@ -23,4 +25,4 @@ option=input("Choose an option: ")
 # print("User selected: " + option)
 
 if option == "1":
-    print_catalog
+    print_catalogq
