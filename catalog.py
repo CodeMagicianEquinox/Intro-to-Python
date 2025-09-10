@@ -1,3 +1,5 @@
 catalog = [
-    
+    "Keyboard"
+    "Trackpad"
+    "Mouse"
 ]
