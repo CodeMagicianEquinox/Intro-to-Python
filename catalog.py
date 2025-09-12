@@ -4,6 +4,11 @@ catalog = [
         "title": "Keyboard",
         "price": 63.87
     },
+    {
+        "id": 5,
+        "title": "Monitor",
+        "price": 102.84
+    },
       {
         "id": 2,
         "title": "Coffee mug",

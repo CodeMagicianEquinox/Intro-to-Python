@@ -1,14 +1,19 @@
 from catalog import catalog
 
+cart = []
+
 def print_header(text):
-    print("--------------------")
+    print("\n\n\n")
     print(text)
     print("--------------------")
 
 def print_menu():
     print("Menu")
     print("1.- View Catalog")
-    print("2.- Search")           # <- (1) add the option
+    print("2.- Search")
+    print("3.- Cart")
+    print("4.- Checkout")
+    print("5.- Clear Cart")
     print("Q.- Quit")
 
 def print_catalog():
@@ -16,48 +21,105 @@ def print_catalog():
     for prod in catalog:
         print(f"| {prod['id']} | {prod['title'].ljust(15)} | ${prod['price']} |")
 
-    answer = input("Type ID to add, or N to close: ")
-    if answer in ("n", "N"):
+    answer = input("Type ID to add, or N to close: ").strip()
+    if answer.lower() == "n":
         return
-    else:
-        add_product_to_cart(answer)
+    add_product_to_cart(answer)
 
 def add_product_to_cart(prod_id):
+    for prod in catalog:
+        if str(prod["id"]) == str(prod_id).strip():
+            cart.append(prod)
+            print(f'{prod["title"]} added to your cart.')
+            return
+    print("**Error: invalid option**")
+
+def search_product():
+    term = input("Search text: ").strip()
     found = False
     for prod in catalog:
-        if str(prod["id"]) == prod_id:
+        if term.lower() in prod["title"].lower():
             found = True
-            print("Found")
+            print(f'Found: ID {prod["id"]} | {prod["title"]} | ${prod["price"]}')
+            choice = input("Do you want this item in your cart? (y/n): ").strip().lower()
+            if choice == "y":
+                add_product_to_cart(prod["id"])
     if not found:
-        print("**Error: invalid option**")
+        print("** No matches found **")
 
-def search_products():
-    # (3) ask for the text to search
-    term = input("Search for: ").strip()
+# sum and print total
+def total():
+    t = 0.0
+    for prod in cart:
+        try:
+            t += float(prod["price"])
+        except (TypeError, ValueError):
+            pass
+    print(f"Total: ${t:.2f}")
+    return t
 
-    # (4) print the text
-    print(f'You typed: "{term}"')
-
-    # Optional: show simple matches by title (case-insensitive)
-    matches = [p for p in catalog if term.lower() in p["title"].lower()]
-    if matches:
-        print_header(f"- Results for: {term} -")
-        for prod in matches:
-            print(f"| {prod['id']} | {prod['title'].ljust(15)} | ${prod['price']} |")
+def view_cart():
+    print_header("Your Cart")
+    if not cart:
+        print("Your cart is empty")
     else:
-        print("No matches.")
+        for prod in cart:
+            print(f"| {prod['id']} | {prod['title'].ljust(15)} | ${prod['price']} |")
+        print("--------------------")
+        print(f"Items: {len(cart)}")
+        total()
+
+def checkout():
+    print_header("Checkout")
+    if not cart:
+        print("Your cart is empty. Add items before checking out.")
+        return
+
+    name  = input("Full name: ").strip()
+    email = input("Email: ").strip()
+    phone = input("Phone: ").strip()
+
+    if "@" not in email or "." not in email:
+        print("Note: that email looks unusual.")
+    if not any(ch.isdigit() for ch in phone):
+        print("Note: that phone number looks unusual.")
+
+    print_header("Order Summary")
+    for p in cart:
+        print(f"| {p['id']} | {p['title'].ljust(15)} | ${p['price']} |")
+    print("--------------------")
+    total()
+
+    confirm = input("Place order? (y/n): ").strip().lower()
+    if confirm == "y":
+        print(f"Thanks, {name}! A confirmation will be sent to {email}.")
+        cart.clear()
+    else:
+        print("Order cancelled.")
+
+def clear_cart():
+    cart.clear()
+    return "your cart has been cleared"
 
 # -------- Initialize --------
-print_header("Welcome to Store xy")
-print_menu()
+option = ""
+while option.lower() != "q":
+    print_header("Welcome to Store xy")
+    print_menu()
+    option = input("Choose an option: ").strip()
 
-option = input("Choose an option: ")
-
-if option == "1":
-    print_catalog()
-elif option == "2":                 # <- (2) handle the search selection
-    search_products()
-elif option in ("q", "Q"):
-    print("Goodbye!")
-else:
-    print("**Error: invalid option**")
+    if option == "1":
+        print_catalog()
+    elif option == "2":
+        search_product()
+    elif option == "3":
+        view_cart()
+    elif option == "4":
+        checkout()
+    elif option == "5":
+        print_header("Clear Cart")     # don't wrap in print(...)
+        print(clear_cart())            # now runs only when option == "5"
+    elif option.lower() == "q":
+        print("Goodbye!")
+    else:
+        print("**Error: invalid option**")
